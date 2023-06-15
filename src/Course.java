@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Course {
     private String _courseID;
-    private ArrayList<CourseComponent> _gradeDist;
+    public ArrayList<CourseComponent> _gradeDist;
 
     public Course(String id) {
         _courseID = id;
@@ -15,8 +15,15 @@ public class Course {
         _gradeDist.add(c);
     }
 
-    public void addGrade(CourseComponent c, double g) {
-        int idx = _gradeDist.indexOf(c);
+    public void addGrade(String comp_id, double g) {
+        int idx = 0;
+
+        for (int i = 0; i < _gradeDist.size(); i++) {
+            if (_gradeDist.get(0).name() == comp_id) {
+                idx = i;
+                break;
+            }
+        }
         _gradeDist.get(idx).giveGrade(g);
     }
 

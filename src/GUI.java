@@ -1,20 +1,15 @@
 package src;
 
-import javax.swing.JFrame;
 import net.miginfocom.swing.MigLayout;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JComboBox;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JTextField;
-import javax.swing.JTextArea;
 import java.awt.event.ActionListener;
 import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import javax.swing.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class GUI {
@@ -22,6 +17,7 @@ public class GUI {
     private JTextField txt_courseid1, txt_courseid2, txt_courseid3, txt_courseid4, txt_courseid5;
     private JComboBox<COURSE_NAMES> combo_coursename1, combo_coursename2, combo_coursename3, combo_coursename4,
             combo_coursename5;
+    private EzLabel lbl_avg1, lbl_avg2, lbl_avg3, lbl_avg4, lbl_avg5;
 
     enum COURSE_NAMES {
         COMP, MATH, PHYS
@@ -65,13 +61,68 @@ public class GUI {
         JOptionPane.showMessageDialog(null, panel, "Input Window", JOptionPane.PLAIN_MESSAGE);
     }
 
+    public void gradeWindow(Course course) {
+
+        // Create a JPanel to hold the components
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(5, 5, 5, 5);
+
+        ArrayList<String> label_texts = new ArrayList<String>();
+        for (CourseComponent comp : course._gradeDist)
+            label_texts.add(comp.name());
+
+        JTextField[] textFields = new JTextField[label_texts.size()];
+
+        for (int i = 0; i < label_texts.size(); i++) {
+            JLabel label = new JLabel(label_texts.get(i));
+            gbc.gridx = 0;
+            gbc.gridy = i;
+            panel.add(label, gbc);
+
+            JTextField textField = new JTextField(20);
+            gbc.gridx = 1;
+            panel.add(textField, gbc);
+
+            textFields[i] = textField;
+        }
+
+        // Create a Save button
+        JButton saveButton = new JButton("Save");
+        saveButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                for (int i = 0; i < textFields.length; i++) {
+                    String comp_id = label_texts.get(i);
+                    textFields[i].setText(textFields[i].getText().replace(" ", ""));
+                    String[] grades = textFields[i].getText().split(",");
+                    for (String ig : grades) {
+                        course.addGrade(comp_id, Double.parseDouble(ig));
+                    }
+                }
+            }
+        });
+
+        // add save button
+        gbc.gridx = 0;
+        gbc.gridy = label_texts.size();
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(10, 5, 5, 5); // Add some extra padding for the button
+        panel.add(saveButton, gbc);
+
+        // Show the JOptionPane with the panel
+        JOptionPane.showMessageDialog(null, panel, "Input Window", JOptionPane.PLAIN_MESSAGE);
+    }
+
     private void initialize() {
         frame = new JFrame("Grade Manager");
         frame.setAlwaysOnTop(false);
         frame.setBounds(100, 100, 800, 500);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(
-                new MigLayout("", "[][][][][grow]", "[][][][grow][][][grow][][][grow][][][grow][][][grow]"));
+                new MigLayout("", "[][][][][][grow]", "[][][][grow][][][grow][][][grow][][][grow][][][grow]"));
 
         JLabel lbl_1 = new JLabel("1.");
         frame.getContentPane().add(lbl_1, "cell 0 3,alignx trailing");
@@ -87,8 +138,11 @@ public class GUI {
         JButton btn_syl1 = new JButton("INPUT SYLLABUS DETAIL");
         frame.getContentPane().add(btn_syl1, "cell 3 3");
 
-        EzLabel lbl_avg1 = new EzLabel("Current grade:", "", "%");
-        frame.getContentPane().add(lbl_avg1, "cell 4 3");
+        JButton btn_enterGrade1 = new JButton("Enter Grades");
+        frame.getContentPane().add(btn_enterGrade1, "cell 4 3");
+
+        lbl_avg1 = new EzLabel("Current grade:", "", "%");
+        frame.getContentPane().add(lbl_avg1, "cell 5 3");
 
         JLabel lbl_2 = new JLabel("2.");
         frame.getContentPane().add(lbl_2, "cell 0 6,alignx trailing");
@@ -104,8 +158,11 @@ public class GUI {
         JButton btn_syl2 = new JButton("INPUT SYLLABUS DETAIL");
         frame.getContentPane().add(btn_syl2, "cell 3 6");
 
-        EzLabel lbl_avg2 = new EzLabel("Current grade:", "", "%");
-        frame.getContentPane().add(lbl_avg2, "cell 4 6");
+        JButton btn_enterGrade2 = new JButton("Enter Grades");
+        frame.getContentPane().add(btn_enterGrade2, "cell 4 6");
+
+        lbl_avg2 = new EzLabel("Current grade:", "", "%");
+        frame.getContentPane().add(lbl_avg2, "cell 5 6");
 
         JLabel lbl_3 = new JLabel("3.");
         frame.getContentPane().add(lbl_3, "cell 0 9,alignx trailing");
@@ -121,8 +178,11 @@ public class GUI {
         JButton btn_syl3 = new JButton("INPUT SYLLABUS DETAIL");
         frame.getContentPane().add(btn_syl3, "cell 3 9");
 
-        EzLabel lbl_avg3 = new EzLabel("Current grade:", "", "%");
-        frame.getContentPane().add(lbl_avg3, "cell 4 9");
+        JButton btn_enterGrade3 = new JButton("Enter Grades");
+        frame.getContentPane().add(btn_enterGrade3, "cell 4 9");
+
+        lbl_avg3 = new EzLabel("Current grade:", "", "%");
+        frame.getContentPane().add(lbl_avg3, "cell 5 9");
 
         JLabel lbl_4 = new JLabel("4.");
         frame.getContentPane().add(lbl_4, "cell 0 12,alignx trailing");
@@ -138,8 +198,11 @@ public class GUI {
         JButton btn_syl4 = new JButton("INPUT SYLLABUS DETAIL");
         frame.getContentPane().add(btn_syl4, "cell 3 12");
 
-        EzLabel lbl_avg4 = new EzLabel("Current grade:", "", "%");
-        frame.getContentPane().add(lbl_avg4, "cell 4 12");
+        JButton btn_enterGrade4 = new JButton("Enter Grades");
+        frame.getContentPane().add(btn_enterGrade4, "cell 4 12");
+
+        lbl_avg4 = new EzLabel("Current grade:", "", "%");
+        frame.getContentPane().add(lbl_avg4, "cell 5 12");
 
         JLabel lbl_5 = new JLabel("5.");
         frame.getContentPane().add(lbl_5, "cell 0 15,alignx trailing");
@@ -155,8 +218,11 @@ public class GUI {
         JButton btn_syl5 = new JButton("INPUT SYLLABUS DETAIL");
         frame.getContentPane().add(btn_syl5, "cell 3 15");
 
-        EzLabel lbl_avg5 = new EzLabel("Current grade:", "", "%");
-        frame.getContentPane().add(lbl_avg5, "cell 4 15");
+        JButton btn_enterGrade5 = new JButton("Enter Grades");
+        frame.getContentPane().add(btn_enterGrade5, "cell 4 15");
+
+        lbl_avg5 = new EzLabel("Current grade:", "", "%");
+        frame.getContentPane().add(lbl_avg5, "cell 5 15");
 
         btn_syl1.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -210,6 +276,17 @@ public class GUI {
                 else
                     syllabusWindow(GradeManager._courses.get(4));
                 return;
+            }
+        });
+
+        btn_enterGrade1.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (GradeManager._courses.get(0) == null)
+                    return;
+
+                gradeWindow(GradeManager._courses.get(0));
+
+                lbl_avg1.setValue(String.valueOf(GradeManager._courses.get(0).currentMark()));
             }
         });
     }
