@@ -12,19 +12,36 @@ public class Course {
     }
 
     public void addComponent(CourseComponent c) {
+        if (_gradeDist.contains(c))
+            return;
         _gradeDist.add(c);
+    }
+
+    public void clearComponents() {
+        _gradeDist.clear();
     }
 
     public void addGrade(String comp_id, double g) {
         int idx = 0;
 
         for (int i = 0; i < _gradeDist.size(); i++) {
-            if (_gradeDist.get(0).name() == comp_id) {
+            if (_gradeDist.get(i).name() == comp_id) {
                 idx = i;
                 break;
             }
         }
         _gradeDist.get(idx).giveGrade(g);
+    }
+
+    public void clearGrades(String comp_id) {
+        int idx = 0;
+        for (int i = 0; i < _gradeDist.size(); i++) {
+            if (_gradeDist.get(i).name() == comp_id) {
+                idx = i;
+                break;
+            }
+        }
+        _gradeDist.get(idx).clearEvals();
     }
 
     public double currentMark() {
@@ -45,10 +62,11 @@ public class Course {
     public String courseComponents() {
         StringBuilder sb = new StringBuilder();
         for (CourseComponent c : _gradeDist) {
-            sb.append(c.toString() + "\n");
+            sb.append(c.ID() + "\n");
         }
         return sb.toString();
     }
+
 }
 
 class CourseComponent {
@@ -64,6 +82,10 @@ class CourseComponent {
 
     public void giveGrade(double g) {
         _evals.add(g);
+    }
+
+    public void clearEvals() {
+        _evals.clear();
     }
 
     public double avg() {
@@ -84,6 +106,25 @@ class CourseComponent {
 
     public double weight() {
         return _weight;
+    }
+
+    public String ID() {
+        return _name + ',' + String.valueOf((int) (_weight * 100) / 100.0);
+    }
+
+    public String evals() {
+        StringBuilder sb = new StringBuilder();
+
+        if (_evals.isEmpty())
+            return "";
+
+        sb.append(String.valueOf((int) (_evals.get(0) * 100) / 100.0));
+
+        for (int i = 1; i < _evals.size(); i++) {
+            sb.append(',' + String.valueOf((int) (_evals.get(i) * 100) / 100.0));
+        }
+
+        return sb.toString();
     }
 
     @Override

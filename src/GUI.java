@@ -20,7 +20,7 @@ public class GUI {
     private EzLabel lbl_avg1, lbl_avg2, lbl_avg3, lbl_avg4, lbl_avg5;
 
     enum COURSE_NAMES {
-        COMP, MATH, PHYS
+        BIOL, CHEM, COMP, ELEC, GENG, KINE, MATH, MECH, PHYS, STAT
     }
 
     public GUI() {
@@ -31,6 +31,9 @@ public class GUI {
     public void syllabusWindow(Course course) {
         // Create a JTextArea for input
         JTextArea textArea = new JTextArea(10, 30);
+        if (!course.courseComponents().isEmpty()) {
+            textArea.setText(course.courseComponents());
+        }
 
         // Create a JPanel to hold the components
         JPanel panel = new JPanel();
@@ -41,6 +44,10 @@ public class GUI {
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+
+                // clear any previous components
+                course.clearComponents();
+
                 // Perform save operation here
                 String[] lines = textArea.getText().split("\n");
 
@@ -83,6 +90,12 @@ public class GUI {
             panel.add(label, gbc);
 
             JTextField textField = new JTextField(20);
+
+            // fill textfield with previous inputs if they exist
+            if (!course._gradeDist.get(i).evals().isEmpty()) {
+                textField.setText(course._gradeDist.get(i).evals());
+            }
+
             gbc.gridx = 1;
             panel.add(textField, gbc);
 
@@ -94,9 +107,20 @@ public class GUI {
         saveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 for (int i = 0; i < textFields.length; i++) {
+
+                    // current course component name
                     String comp_id = label_texts.get(i);
+
+                    // clearing previous entries
+                    course.clearGrades(comp_id);
+
+                    // remove whitespace in input area
                     textFields[i].setText(textFields[i].getText().replace(" ", ""));
+
+                    // get inputted grades
                     String[] grades = textFields[i].getText().split(",");
+
+                    // add grades to respective course component
                     for (String ig : grades) {
                         course.addGrade(comp_id, Double.parseDouble(ig));
                     }
@@ -286,7 +310,51 @@ public class GUI {
 
                 gradeWindow(GradeManager._courses.get(0));
 
-                lbl_avg1.setValue(String.valueOf(GradeManager._courses.get(0).currentMark()));
+                lbl_avg1.setValue(String.valueOf((int) (GradeManager._courses.get(0).currentMark() * 100) / 100.0));
+            }
+        });
+
+        btn_enterGrade2.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (GradeManager._courses.get(1) == null)
+                    return;
+
+                gradeWindow(GradeManager._courses.get(1));
+
+                lbl_avg2.setValue(String.valueOf((int) (GradeManager._courses.get(1).currentMark() * 100) / 100.0));
+            }
+        });
+
+        btn_enterGrade3.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (GradeManager._courses.get(2) == null)
+                    return;
+
+                gradeWindow(GradeManager._courses.get(2));
+
+                lbl_avg3.setValue(String.valueOf((int) (GradeManager._courses.get(2).currentMark() * 100) / 100.0));
+            }
+        });
+
+        btn_enterGrade4.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (GradeManager._courses.get(3) == null)
+                    return;
+
+                gradeWindow(GradeManager._courses.get(3));
+
+                lbl_avg4.setValue(String.valueOf((int) (GradeManager._courses.get(3).currentMark() * 100) / 100.0));
+            }
+        });
+
+        btn_enterGrade5.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (GradeManager._courses.get(4) == null)
+                    return;
+
+                gradeWindow(GradeManager._courses.get(4));
+
+                lbl_avg5.setValue(String.valueOf((int) (GradeManager._courses.get(4).currentMark() * 100) / 100.0));
             }
         });
     }
