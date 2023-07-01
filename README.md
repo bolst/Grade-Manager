@@ -7,7 +7,7 @@ Grade Manager is a Java program that allows users to manage courses and their gr
 Clone this repo and run (assuming Java 1.8):
 
 ```
-javac -cp lib\ml.jar -d bin src\*.java
+javac -cp lib\ml.jar;lib\json-simple-1.1.1.jar -d bin src\*.java
 
-java -cp bin;lib\ml.jar src.GradeManager 
+java -cp bin;lib\ml.jar;lib\json-simple-1.1.1.jar src.GradeManager  
 ```
