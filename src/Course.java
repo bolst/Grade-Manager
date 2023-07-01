@@ -1,6 +1,10 @@
 package src;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 public class Course {
     private String _courseID;
@@ -9,6 +13,16 @@ public class Course {
     public Course(String id) {
         _courseID = id;
         _gradeDist = new ArrayList<CourseComponent>();
+    }
+
+    public Course(JSONObject data) {
+        _courseID = (String) data.get("id");
+
+        _gradeDist = new ArrayList<CourseComponent>();
+        JSONArray grades = (JSONArray) data.get("distribution");
+        Iterator<JSONObject> it = grades.iterator();
+        while (it.hasNext())
+            _gradeDist.add(new CourseComponent(it.next()));
     }
 
     public void addComponent(CourseComponent c) {
@@ -59,12 +73,29 @@ public class Course {
         return _courseID;
     }
 
+    public void setID(String id) {
+        _courseID = id;
+    }
+
     public String courseComponents() {
         StringBuilder sb = new StringBuilder();
         for (CourseComponent c : _gradeDist) {
             sb.append(c.ID() + "\n");
         }
         return sb.toString();
+    }
+
+    public JSONObject json() {
+        JSONObject retval = new JSONObject();
+        retval.put("id", _courseID);
+
+        JSONArray dist = new JSONArray();
+        for (CourseComponent c : _gradeDist)
+            dist.add(c.json());
+
+        retval.put("distribution", dist);
+
+        return retval;
     }
 
 }
@@ -78,6 +109,17 @@ class CourseComponent {
         _name = name;
         _weight = weight;
         _evals = new ArrayList<Double>();
+    }
+
+    public CourseComponent(JSONObject data) {
+        _name = (String) data.get("id");
+        _weight = (Double) data.get("weight");
+
+        _evals = new ArrayList<Double>();
+        JSONArray json_evals = (JSONArray) data.get("grades");
+        Iterator<Double> it = json_evals.iterator();
+        while (it.hasNext())
+            _evals.add(it.next());
     }
 
     public void giveGrade(double g) {
@@ -138,5 +180,19 @@ class CourseComponent {
         }
 
         return sb.toString();
+    }
+
+    public JSONObject json() {
+        JSONObject retval = new JSONObject();
+        retval.put("id", _name);
+        retval.put("weight", _weight);
+
+        JSONArray grades = new JSONArray();
+        for (Double e : _evals)
+            grades.add(e);
+
+        retval.put("grades", grades);
+
+        return retval;
     }
 }

@@ -1,16 +1,22 @@
 package src;
 
 import net.miginfocom.swing.MigLayout;
+import org.json.simple.*;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import java.awt.event.ActionListener;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Reader;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import javax.swing.*;
-
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Iterator;
 
 public class GUI {
     public JFrame frame;
@@ -18,9 +24,10 @@ public class GUI {
     private JComboBox<COURSE_NAMES> combo_coursename1, combo_coursename2, combo_coursename3, combo_coursename4,
             combo_coursename5;
     private EzLabel lbl_avg1, lbl_avg2, lbl_avg3, lbl_avg4, lbl_avg5;
+    private final String json_ID = "dat.json";
 
     enum COURSE_NAMES {
-        BIOL, CHEM, COMP, ELEC, GENG, KINE, MATH, MECH, PHYS, STAT
+        BIOL, CHEM, COMP, ELEC, GART, GENG, KINE, MATH, MECH, PHYS, STAT
     }
 
     public GUI() {
@@ -248,6 +255,12 @@ public class GUI {
         lbl_avg5 = new EzLabel("Current grade:", "", "%");
         frame.getContentPane().add(lbl_avg5, "cell 5 15");
 
+        JButton btn_save = new JButton("SAVE");
+        frame.getContentPane().add(btn_save, "cell 2 2");
+
+        JButton btn_load = new JButton("LOAD");
+        frame.getContentPane().add(btn_load, "cell 1 2");
+
         btn_syl1.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String course_id = combo_coursename1.getSelectedItem().toString() + txt_courseid1.getText();
@@ -357,6 +370,94 @@ public class GUI {
                 lbl_avg5.setValue(String.valueOf((int) (GradeManager._courses.get(4).currentMark() * 100) / 100.0));
             }
         });
+
+        btn_save.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+                JSONArray json = new JSONArray();
+                for (Course c : GradeManager._courses) {
+                    if (c != null) {
+                        json.add(c.json());
+                    }
+                }
+
+                try (FileWriter file = new FileWriter(json_ID)) {
+                    file.write(json.toJSONString());
+                } catch (IOException exc) {
+                    System.out.println("Error writing to file: " + exc.toString());
+                }
+            }
+        });
+
+        btn_load.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+                JSONParser prs = new JSONParser();
+
+                try (Reader rdr = new FileReader(json_ID)) {
+
+                    JSONArray data = (JSONArray) prs.parse(rdr);
+                    Iterator<JSONObject> it = data.iterator();
+                    int i = 0;
+                    while (it.hasNext() && i < 5) {
+                        GradeManager._courses.add(i++, new Course(it.next()));
+                    }
+
+                    updateGUI(GradeManager._courses);
+
+                } catch (IOException exc) {
+                    JOptionPane.showMessageDialog(frame, exc.toString());
+                } catch (ParseException exc) {
+                    JOptionPane.showMessageDialog(frame, exc.toString());
+
+                }
+            }
+
+        });
+    }
+
+    private void updateGUI(ArrayList<Course> courses) {
+
+        if (courses.get(0) != null) {
+            String id1_pre = courses.get(0).courseID().substring(0, 4);
+            String id1_pos = courses.get(0).courseID().substring(4, 8);
+            combo_coursename1.setSelectedItem(COURSE_NAMES.valueOf(id1_pre));
+            txt_courseid1.setText(id1_pos);
+            lbl_avg1.setValue(String.valueOf((int) (GradeManager._courses.get(0).currentMark() * 100) / 100.0));
+        }
+
+        if (courses.get(1) != null) {
+            String id2_pre = courses.get(1).courseID().substring(0, 4);
+            String id2_pos = courses.get(1).courseID().substring(4, 8);
+            combo_coursename2.setSelectedItem(COURSE_NAMES.valueOf(id2_pre));
+            txt_courseid2.setText(id2_pos);
+            lbl_avg2.setValue(String.valueOf((int) (GradeManager._courses.get(1).currentMark() * 100) / 100.0));
+        }
+
+        if (courses.get(2) != null) {
+            String id3_pre = courses.get(2).courseID().substring(0, 4);
+            String id3_pos = courses.get(2).courseID().substring(4, 8);
+            combo_coursename3.setSelectedItem(COURSE_NAMES.valueOf(id3_pre));
+            txt_courseid3.setText(id3_pos);
+            lbl_avg3.setValue(String.valueOf((int) (GradeManager._courses.get(2).currentMark() * 100) / 100.0));
+        }
+
+        if (courses.get(3) != null) {
+            String id4_pre = courses.get(3).courseID().substring(0, 4);
+            String id4_pos = courses.get(3).courseID().substring(4, 8);
+            combo_coursename4.setSelectedItem(COURSE_NAMES.valueOf(id4_pre));
+            txt_courseid4.setText(id4_pos);
+            lbl_avg4.setValue(String.valueOf((int) (GradeManager._courses.get(3).currentMark() * 100) / 100.0));
+        }
+
+        if (courses.get(4) != null) {
+            String id5_pre = courses.get(4).courseID().substring(0, 4);
+            String id5_pos = courses.get(4).courseID().substring(4, 8);
+            combo_coursename5.setSelectedItem(COURSE_NAMES.valueOf(id5_pre));
+            txt_courseid5.setText(id5_pos);
+            lbl_avg5.setValue(String.valueOf((int) (GradeManager._courses.get(0).currentMark() * 100) / 100.0));
+        }
+
     }
 }
 
