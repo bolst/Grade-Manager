@@ -4,14 +4,10 @@ Grade Manager is a Java program that allows users to manage courses and their gr
 
 ## Usage
 
-To use Grade Manager, clone this repo and run:
+Clone this repo and run (assuming Java 1.8):
 
 ```
 javac -cp lib\ml.jar -d bin src\*.java
 
 java -cp bin;lib\ml.jar src.GradeManager 
 ```
-
-## TODO:
-
-- Adding functionality for saving grades/courses on application close
