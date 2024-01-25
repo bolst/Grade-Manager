@@ -1,12 +1,14 @@
 package src.front;
 
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
+import javax.swing.JFileChooser;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -16,14 +18,12 @@ import org.json.simple.parser.ParseException;
 import java.awt.event.ActionEvent;
 
 import src.Course;
+import src.util.Pair;
 
 public class Controller {
 
     private static Controller instance = null;
     public ArrayList<Course> courses;
-
-    // TODO: allow user to save/upload files with a dialog
-    private static final String json_ID = "dat.json";
 
     private Controller() {
         courses = new ArrayList<Course>();
@@ -78,52 +78,72 @@ public class Controller {
 
         GUI.instance().btn_load.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-
-                JSONParser prs = new JSONParser();
-
-                try (Reader rdr = new FileReader(json_ID)) {
-
-                    JSONArray data = (JSONArray) prs.parse(rdr);
-                    Iterator<JSONObject> it = data.iterator();
-                    int i = 0;
-                    while (it.hasNext() && i < 5) {
-                        Controller.instance().courses.add(i++, new Course(it.next()));
-                    }
-
-                    Controller.instance().updateGUI(Controller.instance().courses);
-
-                } catch (IOException exc) {
-                    GUI.instance().showMessage(exc.toString());
-                } catch (ParseException exc) {
-                    GUI.instance().showMessage(exc.toString());
-
-                }
+                Controller.instance().promptLoad();
             }
         });
 
         GUI.instance().btn_save.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-
-                JSONArray json = new JSONArray();
-                for (Course c : Controller.instance().courses) {
-                    if (c != null) {
-                        json.add(c.json());
-                    }
-                }
-
-                try (FileWriter file = new FileWriter(json_ID)) {
-                    file.write(json.toJSONString());
-                } catch (IOException exc) {
-                    System.out.println("Error writing to file: " + exc.toString());
-                }
+                Controller.instance().promptSave();
             }
         });
 
     }
 
+    private void promptSave() {
+        JSONArray json = new JSONArray();
+        for (Course c : Controller.instance().courses) {
+            if (c != null) {
+                json.add(c.json());
+            }
+        }
+
+        Pair<Integer, File> saveInstance = GUI.instance().saveWindow();
+
+        if (saveInstance.first() == JFileChooser.APPROVE_OPTION) {
+            File file = saveInstance.second();
+
+            try (FileWriter fw = new FileWriter(file)) {
+                fw.write(json.toJSONString());
+            } catch (IOException exc) {
+                GUI.instance().showMessage("Error writing to file");
+                System.out.println(exc.toString());
+            }
+        }
+    }
+
+    private void promptLoad() {
+        Pair<Integer, File> loadInstance = GUI.instance().loadWindow();
+
+        if (loadInstance.first() == JFileChooser.APPROVE_OPTION) {
+            JSONParser prs = new JSONParser();
+            File file = loadInstance.second();
+
+            try (Reader rdr = new FileReader(file)) {
+
+                JSONArray data = (JSONArray) prs.parse(rdr);
+                Iterator<JSONObject> it = data.iterator();
+                int i = 0;
+                while (it.hasNext() && i < 5) {
+                    Controller.instance().courses.add(i++, new Course(it.next()));
+                }
+
+                Controller.instance().updateGUI(Controller.instance().courses);
+
+            } catch (IOException exc) {
+                GUI.instance().showMessage(exc.toString());
+            } catch (ParseException exc) {
+                GUI.instance().showMessage(exc.toString());
+
+            }
+        }
+    }
+
     private void updateGUI(ArrayList<Course> courses) {
         for (int i = 0; i < 5; i++) {
             Course course = Controller.instance().courses.get(i);
+            if (course == null)
+                continue;
             final String courseName = course.courseID().substring(0, 4);
             final String courseId = course.courseID().substring(4, 8);
             final int mark = (int) ((course.currentMark() * 100) / 100.0);

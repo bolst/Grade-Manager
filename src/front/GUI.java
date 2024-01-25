@@ -5,18 +5,23 @@ import src.Course;
 import src.CourseComponent;
 
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+
 import java.util.ArrayList;
+
+import src.util.Pair;
 
 public class GUI {
     private static GUI instance = null;
 
-    private JFrame frame;
+    protected JFrame frame;
     protected ArrayList<CoursePanel> coursePanels;
     protected JButton btn_load, btn_save;
 
@@ -37,6 +42,9 @@ public class GUI {
     }
 
     public void syllabusWindow(Course course) {
+        final String instructionStr = "Accepted format is \"type,weight\" and a newline for each entry";
+        JLabel instructionLabel = new JLabel(instructionStr);
+
         // Create a JTextArea for input
         JTextArea textArea = new JTextArea(10, 30);
         if (!course.courseComponents().isEmpty()) {
@@ -46,6 +54,8 @@ public class GUI {
         // Create a JPanel to hold the components
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
+
+        panel.add(instructionLabel, BorderLayout.NORTH);
         panel.add(new JScrollPane(textArea), BorderLayout.CENTER);
 
         // Create a Save button
@@ -146,6 +156,41 @@ public class GUI {
 
         // Show the JOptionPane with the panel
         JOptionPane.showMessageDialog(null, panel, "Input Window", JOptionPane.PLAIN_MESSAGE);
+    }
+
+    public Pair<Integer, File> saveWindow() {
+        JFileChooser fc = new JFileChooser();
+        fc.setFileFilter(getJSONFilter());
+
+        int x = fc.showSaveDialog(frame);
+        File y = fc.getSelectedFile();
+        return new Pair<Integer, File>(x, y);
+    }
+
+    public Pair<Integer, File> loadWindow() {
+        JFileChooser fc = new JFileChooser();
+        fc.setFileFilter(getJSONFilter());
+
+        int x = fc.showOpenDialog(frame);
+        File y = fc.getSelectedFile();
+        return new Pair<Integer, File>(x, y);
+    }
+
+    private FileFilter getJSONFilter() {
+        return new FileFilter() {
+            public String getDescription() {
+                return "JSON Files (*.json)";
+            }
+
+            public boolean accept(File f) {
+                if (f.isDirectory()) {
+                    return true;
+                } else {
+                    String filename = f.getName().toLowerCase();
+                    return filename.endsWith(".json");
+                }
+            }
+        };
     }
 
     private void initialize() {
