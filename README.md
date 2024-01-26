@@ -8,6 +8,11 @@ Grade Manager is a Java program that allows users to manage courses and their gr
 curl -O https://raw.githubusercontent.com/bolst/Grade-Manager/blob/main/GradeManager.jar
 ```
 
+```
+java -jar GradeManager.jar
+```
+
+
 ## Usage
 
 Clone this repo and run:
