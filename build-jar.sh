@@ -1,8 +1,12 @@
 javac -cp lib/ml.jar:lib/json-simple-1.1.1.jar $(find . -name '*.java')
 
+mkdir -p build
+mv MANIFEST.MF build/
+
 jar cmf build/MANIFEST.MF GradeManager.jar src/*
 
-mkdir -p build
+mv build/MANIFEST.MF .
+
 mkdir -p build/util
 mkdir -p build/front
 
